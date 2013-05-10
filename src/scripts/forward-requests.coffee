@@ -11,7 +11,7 @@
 #  Forwards all HTTP requests recieved by this hubot's router to another host.
 #  Use case: You want to receieve service requests from github et.al. in your
 #  dev environment, but don't want to reconfigure all of your services.
-#  
+#
 #
 # Author:
 #   jjmason
@@ -80,9 +80,8 @@ class ForwardRequests
       @reportProxyError(err)
       proxy.end()
     req.on 'data', (chunk) -> proxy.write(chunk)
-  	req.on 'error', (err) -> proxy.end()
-  	req.on 'end', -> proxy.end()
-
+    req.on 'error', (err) -> proxy.end()
+    req.on 'end', -> proxy.end()
     # start's everything off
     next()
 
@@ -142,7 +141,7 @@ class ForwardRequests
     verbing = if value then 'showing' else 'ignoring'
     if value != @showErrors
       @save('showErrors':value)
-      reply("#{verbing} request forwarding errors"
+      reply("#{verbing} request forwarding errors")
     else
       reply("already #{verbing} request forwarding errors")
 
