@@ -20,6 +20,9 @@ _ = require 'underscore'
 http = require 'http'
 https = require 'https'
 
+Url = require 'url'
+Util = require 'util'
+
 protocols = {https:https, http:http}
 
 class ForwardRequests
@@ -36,30 +39,36 @@ class ForwardRequests
     @lastMsg = { }
 
   addCommands: ->
-    @robot.respond /forward(?:\s*(?:http)?\s*(?:requests)?\s*(?:to)?\s*(\S+)/i, (msg) ->
+    @robot.respond /forward\s*(?:http)?\s*(?:requests)?\s*(?:to)?\s*(\S+)/i, (msg) =>
       @forwardTo msg.match[1], (strings...) -> msg.reply(strings...)
 
-    @robot.respond /(?:turn)?\s*(?:request)?\s*forward(?:ing)?\s*(on|off)/i, (msg) ->
+    @robot.respond /(?:turn)?\s*(?:request)?\s*forward(?:ing)?\s*(on|off)/i, (msg) =>
       @setOn msg.match[1], (strings...) -> msg.reply(strings...)
 
-    @robot.respond /(show|ignore)\s*(?:request)?\s*(forward(?:ing)?)\s*errors/i, (msg) ->
+    @robot.respond /(show|ignore)\s*(?:request)?\s*(forward(?:ing)?)\s*errors/i, (msg) =>
       @setShowErrors msg.match[1] == 'show', (strings...) -> msg.reply(strings...)
 
-    @robot.respond /(?:show)?\s*(?:request)?\s*forward(?:ing)?\s*(?:info)?/i, (msg) ->
-      emit = ["request forwarding is #{if @on then 'on' else 'off'}"]
-      if @to == null
-        emit.push "no destination is set, so nothing's going to happen!"
-      else
-        emit.push "when forwarding is on requests go to #{@formatTo(@to)}"
-      if @showErrors then emit.push "proxy http errors are shown in chat"
-      else emit.push "proxy http errors are silently discarded"
-      msg.reply(emit...)
+    @robot.respond /(?:show)?\s*(?:request)?\s*forward(?:ing)?\s*(?:info)?/i, (msg) =>
+      @showInfo (strings...)->
+        msg.reply(strings...)
+
+  showInfo: (reply) ->
+    emit = ["request forwarding is #{if @on then 'on' else 'off'}"]
+    if @to == null
+      emit.push "no destination is set, so nothing's going to happen!"
+    else
+      emit.push "when forwarding is on requests go to #{@formatTo(@to)}"
+    if @showErrors
+      emit.push "proxy http errors are shown in chat"
+    else
+      emit.push "proxy http errors are silently discarded"
+    reply(emit...)
 
   addMiddleware:->
-    @robot.routes.use (req,res,next) =>
+    @robot.router.use (req,res,next) =>
       @forwardRequest(req,res,next)
     # hack: we have to get our handler in first or we miss requests!
-    @robot.routes.stack.unshift(@robot.routes.stack.pop())
+    @robot.router.stack.unshift(@robot.router.stack.pop())
 
   forwardRequest: (req, res, next) ->
     # quick exit if we're disabled
@@ -73,8 +82,8 @@ class ForwardRequests
       headers:_.extend(req.headers, {host:@to.host})
       hostname:@to.host
       port:@to.port
-    proxy = protocol.request()(options)
-
+      
+    proxy = protocol.request(options)
     # we have to handle this event or errors get thrown all the way up
     proxy.on 'error', (err) ->
       @reportProxyError(err)
@@ -96,12 +105,11 @@ class ForwardRequests
     @showErrors = data.showErrors if _.has data, 'showErrors'
 
   save: (update) ->
-    _.update(@, update)
+    _.extend(@, update)
     data = (@robot.brain.data.forwardRequests ||= {})
     data.to = @to
     data.on = @on
     @robot.brain.save()
-
   formatTo:(to)->
     "#{if to.https then 'https' else 'http'}://#{to.host}:#{to.port}"
 
