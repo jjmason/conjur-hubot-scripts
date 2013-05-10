@@ -1,0 +1,23 @@
+{
+  "name":        "conjur-hubot-scripts",
+  "version":     "0.0.1",
+
+  "author":      "Jon Mason",
+
+  "description": "Some useful hubot scripts.",
+
+  "main": "./lib/index.coffee",
+
+  "dependencies": {
+    "hubot":         ">= 2.5.1",
+    "hubot-scripts": ">= 2.4.2",
+    "coffee-script": "latest",
+    "underscore": "latest",
+    "underscore.string": "latest"
+  },
+
+  "engines": {
+    "node": ">= 0.8.x",
+    "npm":  ">= 1.1.x"
+  }
+}
