@@ -7,12 +7,12 @@
   "description": "Some useful hubot scripts.",
 
   "main": "./src/conjur-hubot-scripts.coffee",
-  
+
   "repository":{
     "type":"git",
-    "url":"https://github.com/jjmason/conjur-hubot-scripts.git"
+    "url":"git://github.com/jjmason/conjur-hubot-scripts.git"
   },
-  
+
   "dependencies": {
     "hubot":         ">= 2.5.1",
     "hubot-scripts": ">= 2.4.2",
