@@ -32,7 +32,7 @@ class ForwardRequests
     @showErrors = false
 
     @rooms = []
-    @robot.brain.on('loaded', -> @onBrainLoaded())
+    @robot.brain.on('loaded', => @onBrainLoaded())
     @addCommands()
     @addMiddleware()
 
@@ -100,6 +100,7 @@ class ForwardRequests
 
   onBrainLoaded: ->
     data = @robot.brain.data.forwardRequests ? {}
+    @robot.logger.info "data=#{Util.format data}"
     @on = !!data.on if _.has data, 'on'
     @to = data.to if _.has data, 'to'
     @showErrors = data.showErrors if _.has data, 'showErrors'
@@ -109,7 +110,10 @@ class ForwardRequests
     data = (@robot.brain.data.forwardRequests ||= {})
     data.to = @to
     data.on = @on
+    data.showErrors = @showErrors
+    @robot.brain.data.forwardRequests = data
     @robot.brain.save()
+    
   formatTo:(to)->
     "#{if to.https then 'https' else 'http'}://#{to.host}:#{to.port}"
 
@@ -153,6 +157,7 @@ class ForwardRequests
     else
       reply("already #{verbing} request forwarding errors")
 
-module.exports = (robot) ->
+module.exports = (robot) -> 
   new ForwardRequests(robot)
+  
 
