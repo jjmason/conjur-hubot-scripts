@@ -6,5 +6,4 @@ module.exports = (robot) ->
   Fs.exists path, (exists) ->
     if exists
       for file in Fs.readdirSync(path)
-        robot.logger.info "conjur-hubot-scripts: loading #{path}"
         robot.loadFile path, file
