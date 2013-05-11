@@ -1,0 +1,26 @@
+#!/bin/sh
+npm install
+
+#path nonsense
+BASE=`dirname $0`/..
+cd $BASE
+BASE=`pwd`
+
+#configure environment
+export PORT=9894
+export FILE_BRAIN_PATH=$BASE/var
+export HUBOT_ADAPTER=campfire
+export HUBOT_CAMPFIRE_TOKEN=3cad6dc88e7ccb70aa13aa0aa89baeebae821600
+export HUBOT_CAMPFIRE_ACCOUNT=conjur
+export HUBOT_CAMPFIRE_ROOMS=562588
+export HUBOT_LOG_LEVEL=debug
+
+LOG=$BASE/logs/hubot.log
+PID=$BASE/pids/hubot.pid
+HUBOT=$BASE/node_modules/.bin/hubot
+WATCH=$BASE/..
+
+CMD="foreverd start --watchDirectory $WATCH --pidFile $PID -l $LOG -a -c coffee $HUBOT"
+echo "CMD=$CMD"
+exec $CMD
+
