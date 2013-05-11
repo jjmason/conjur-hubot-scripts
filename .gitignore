@@ -11,6 +11,10 @@ pids
 logs
 results
 
+hubot-scripts.json
+brain-dump.json
+test-server.js
+.c9*
 npm-debug.log
 node_modules
 
